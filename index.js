@@ -22,8 +22,42 @@ slack.on('error', function (error) {
 slack.login();
 
 
-/***** tasks *****/
+/***** Tasks *****/
 
+// よるほー
 var yoruho = new CronJob('00 00 00 * * *', function () {
 	channels.random.send('よるほー');
+});
+
+// プロ->趣味
+slack.on('message', function (message) {
+	var channel = slack.getChannelGroupOrDMByID(message.channel);
+	var user = slack.getUserByID(message.user);
+
+	if (channel.name === 'random' && message.type === 'message' && message.text) {
+		var puro = /([ぷプ][ろロ]|pro)/ig;
+
+		// ignore frequently appeared words
+		var ignores = [
+			'プログラ',
+			'program',
+			'sunpro',
+		];
+		var text = message.text.replace(new RegExp('(' + ignores.join('|') + ')', 'ig'), '');
+
+		if (text.match(puro)) {
+			var response = message.text.replace(puro, function (match) {
+				return match
+					.replace(/[ぷプ][ろロ]/g, '趣味')
+					.replace(/p/g, 's')
+					.replace(/P/g, 'S')
+					.replace(/r/g, 'hu')
+					.replace(/R/g, 'HU')
+					.replace(/o/g, 'mi')
+					.replace(/O/g, 'MI');
+			}) + ' @' + user.name;
+
+			channel.send(response);
+		}
+	}
 });
