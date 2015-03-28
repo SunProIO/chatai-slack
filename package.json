@@ -1,0 +1,23 @@
+{
+  "name": "chatai-slack",
+  "version": "0.0.0",
+  "description": "chatai never die.",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SunProIO/chatai-slack.git"
+  },
+  "author": "hakatashi <hakatasiloving@gmail.com> (http://hakatashi.com/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/SunProIO/chatai-slack/issues"
+  },
+  "homepage": "https://github.com/SunProIO/chatai-slack",
+  "dependencies": {
+    "cron": "^1.0.9",
+    "slack-client": "^1.4.0"
+  }
+}
