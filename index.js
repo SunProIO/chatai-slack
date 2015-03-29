@@ -27,7 +27,7 @@ slack.login();
 // よるほー
 var yoruho = new CronJob('00 00 00 * * *', function () {
 	channels.random.send('よるほー');
-});
+}, null, true, 'Asia/Tokyo');
 
 // プロ->趣味
 slack.on('message', function (message) {
