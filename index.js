@@ -1,5 +1,6 @@
 var Slack = require('slack-client');
 var CronJob = require('cron').CronJob;
+var google = require('googleapis');
 
 var secret = require('./secret');
 
@@ -22,11 +23,43 @@ slack.on('error', function (error) {
 slack.login();
 
 
+/***** Google API setups *****/
+
+var OAuth2 = google.auth.OAuth2;
+var oauth2Client = new OAuth2(
+	secret.googleapis.installed.client_id,
+	secret.googleapis.installed.client_secret,
+	secret.googleapis.installed.redirect_uris[0]
+);
+
+oauth2Client.setCredentials({
+	access_token: secret.googleapis.local.access_token,
+	refresh_token: secret.googleapis.local.refresh_token,
+});
+
+var analytics = google.analytics({version: 'v3', auth: oauth2Client});
+
+
 /***** Tasks *****/
 
 // よるほー
 var yoruho = new CronJob('00 00 00 * * *', function () {
 	channels.random.send('よるほー');
+
+	// sunpro.ioのアナリティクス情報
+	analytics.data.ga.get({
+		ids: 'ga:98304030',
+		'start-date': 'yesterday',
+		'end-date': 'today',
+		metrics: 'ga:sessions,ga:users',
+	}, function (error, data) {
+		var PV = data.totalsForAllResults['ga:sessions'];
+		var UU = data.totalsForAllResults['ga:users'];
+
+		var text = '昨日のsunpro.ioのPV: ' + PV + ' UU: ' + UU;
+
+		channels.random.send(text);
+	});
 }, null, true, 'Asia/Tokyo');
 
 // プロ->趣味
