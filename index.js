@@ -46,7 +46,7 @@ var analytics = google.analytics({version: 'v3', auth: oauth2Client});
 var yoruho = new CronJob('00 00 00 * * *', function () {
 	channels.random.send('よるほー');
 
-	// sunpro.ioのアナリティクス情報
+	// sunpro.io analytics information
 	analytics.data.ga.get({
 		ids: 'ga:98304030',
 		'start-date': 'yesterday',
@@ -70,7 +70,7 @@ slack.on('message', function (message) {
 	if (channel.name === 'random' && message.type === 'message' && message.text) {
 		var puro = /([ぷプ][ろロ]|pro)/ig;
 
-		// ignore frequently appeared words
+		// ignore frequently appearing words
 		var ignores = [
 			'プログラ',
 			'program',
