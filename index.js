@@ -53,12 +53,17 @@ var yoruho = new CronJob('00 00 00 * * *', function () {
 		'end-date': 'today',
 		metrics: 'ga:sessions,ga:users',
 	}, function (error, data) {
-		var PV = data.totalsForAllResults['ga:sessions'];
-		var UU = data.totalsForAllResults['ga:users'];
+		if (error) {
+			var text = 'PVを取得できませんでした……ごめんね。。。\n\nERROR: ' + error;
+			channels.random.send(text);
+		} else {
+			var PV = data.totalsForAllResults['ga:sessions'];
+			var UU = data.totalsForAllResults['ga:users'];
 
-		var text = '昨日のsunpro.ioのPV: ' + PV + ' UU: ' + UU;
+			var text = '昨日のsunpro.ioのPV: ' + PV + ' UU: ' + UU;
 
-		channels.random.send(text);
+			channels.random.send(text);
+		}
 	});
 }, null, true, 'Asia/Tokyo');
 
