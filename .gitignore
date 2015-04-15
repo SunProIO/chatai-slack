@@ -75,4 +75,4 @@ $RECYCLE.BIN/
 *.lnk
 
 # SECRET
-secret.js
+secret.json

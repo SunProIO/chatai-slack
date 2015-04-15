@@ -53,6 +53,15 @@ var yoruho = new CronJob('00 00 00 * * *', function () {
 		'end-date': 'today',
 		metrics: 'ga:sessions,ga:users',
 	}, function (error, data) {
+		oauth2Client.getAccessToken(function (error, access_token) {
+			if (error) {
+				var text = 'アクセストークンを更新できませんでした。。。\n\nERROR: ' + error;
+				channels.random.send(text);
+			}
+
+			secret.googleapis.local.access_token = access_token;
+		});
+
 		if (error) {
 			var text = 'PVを取得できませんでした……ごめんね。。。\n\nERROR: ' + error;
 			channels.random.send(text);

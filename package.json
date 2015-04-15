@@ -19,6 +19,7 @@
   "dependencies": {
     "cron": "^1.0.9",
     "googleapis": "^2.0.2",
+    "harmony-reflect": "^1.1.2",
     "slack-client": "^1.4.0"
   }
 }
