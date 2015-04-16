@@ -1,8 +1,9 @@
 var Slack = require('slack-client');
 var CronJob = require('cron').CronJob;
 var google = require('googleapis');
+var fs = require('fs');
 
-var secret = require('./secret');
+var secret = require('./secret.json');
 
 /***** Slack things *****/
 
@@ -60,6 +61,7 @@ var yoruho = new CronJob('00 00 00 * * *', function () {
 			}
 
 			secret.googleapis.local.access_token = access_token;
+			fs.writeFile('secret.json', JSON.stringify(secret, null, 2));
 		});
 
 		if (error) {
