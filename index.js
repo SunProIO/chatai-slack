@@ -53,14 +53,15 @@ var yoruho = new CronJob('00 00 00 * * *', function () {
 		'start-date': 'yesterday',
 		'end-date': 'today',
 		metrics: 'ga:sessions,ga:users',
+		auth: oauth2Client,
 	}, function (error, data) {
-		oauth2Client.getAccessToken(function (error, access_token) {
+		oauth2Client.refreshAccessToken(function (error, tokens) {
 			if (error) {
 				var text = 'アクセストークンを更新できませんでした。。。\n\nERROR: ' + error;
 				channels.random.send(text);
 			}
 
-			secret.googleapis.local.access_token = access_token;
+			secret.googleapis.local = tokens;
 			fs.writeFile('secret.json', JSON.stringify(secret, null, 2));
 		});
 
