@@ -46,37 +46,6 @@ var analytics = google.analytics({version: 'v3', auth: oauth2Client});
 // よるほー
 var yoruho = new CronJob('00 00 00 * * *', function () {
 	channels.random.send('よるほー');
-
-	// sunpro.io analytics information
-	analytics.data.ga.get({
-		ids: 'ga:98304030',
-		'start-date': 'yesterday',
-		'end-date': 'today',
-		metrics: 'ga:sessions,ga:users',
-		auth: oauth2Client,
-	}, function (error, data) {
-		oauth2Client.refreshAccessToken(function (error, tokens) {
-			if (error) {
-				var text = 'アクセストークンを更新できませんでした。。。\n\nERROR: ' + error;
-				channels.random.send(text);
-			}
-
-			secret.googleapis.local = tokens;
-			fs.writeFile('secret.json', JSON.stringify(secret, null, 2));
-		});
-
-		if (error) {
-			var text = 'PVを取得できませんでした……ごめんね。。。\n\nERROR: ' + error;
-			channels.random.send(text);
-		} else {
-			var PV = data.totalsForAllResults['ga:sessions'];
-			var UU = data.totalsForAllResults['ga:users'];
-
-			var text = '昨日のsunpro.ioのPV: ' + PV + ' UU: ' + UU;
-
-			channels.random.send(text);
-		}
-	});
 }, null, true, 'Asia/Tokyo');
 
 // プロ->趣味
