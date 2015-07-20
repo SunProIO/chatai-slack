@@ -103,7 +103,7 @@ slack.on('message', function (message) {
 
 		// Execute on reply
 		if (message.text.length < 200) {
-			if (message.text.match('@chatai ')) {
+			if (message.text.match('<@' + slack.self.id + '>')) {
 				execChatai = 'force';
 			} else if (Math.random() < .1) {
 				execChatai = 'possible';
@@ -111,8 +111,8 @@ slack.on('message', function (message) {
 		}
 
 		if (execChatai) {
-			// Remove @mentions
-			var input = message.text.replace(/@\w+/g, '');
+			// Remove meta sequences and emojies
+			var input = message.text.replace(/(<.+?>|:.+?:)/g, '');
 
 			var command = spawn('shly', [
 				'run',
