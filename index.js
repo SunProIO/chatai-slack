@@ -5,6 +5,9 @@ var fs = require('fs');
 
 var secret = require('./secret.json');
 
+// Initialize Timezone
+process.env.TZ = 'Asia/Tokyo';
+
 /***** Slack things *****/
 
 var slack = new Slack(secret.token, true, true);
@@ -46,6 +49,17 @@ var analytics = google.analytics({version: 'v3', auth: oauth2Client});
 // よるほー
 var yoruho = new CronJob('00 00 00 * * *', function () {
 	channels.random.send('よるほー');
+
+	// Happy Birthday!
+	var date = new Date();
+	var month = date.getMonth() + 1;
+	var day = date.getDate();
+	var today = month + '/' + day;
+	secret.birthdays.forEach(function (birthday) {
+		if (today === birthday.day) {
+			channels.random.send('今日は @' + birthday.id + ' さんの誕生日だよ! おめでとう! :birthday:');
+		}
+	});
 }, null, true, 'Asia/Tokyo');
 
 // プロ->趣味
