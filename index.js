@@ -77,6 +77,8 @@ slack.on('message', function (message) {
 			'sunpro',
 			'プロジェクト',
 			'project',
+			'プロセス',
+			'process',
 		];
 		var text = message.text.replace(new RegExp('(' + ignores.join('|') + ')', 'ig'), '');
 
