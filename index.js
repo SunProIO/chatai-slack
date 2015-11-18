@@ -44,10 +44,9 @@ oauth2Client.setCredentials({
 var analytics = google.analytics({version: 'v3', auth: oauth2Client});
 
 
-/***** Tasks *****/
+/***** Cron Jobs *****/
 
-// よるほー
-var yoruho = new CronJob('00 00 00 * * *', function () {
+function yoruho() {
 	channels.random.send('よるほー');
 
 	// Happy Birthday!
@@ -60,7 +59,13 @@ var yoruho = new CronJob('00 00 00 * * *', function () {
 			channels.random.send('今日は @' + birthday.id + ' さんの誕生日だよ! おめでとう! :birthday:');
 		}
 	});
-}, null, true, 'Asia/Tokyo');
+}
+
+// よるほー
+const yoruhoJob = new CronJob('00 00 00 * * *', yoruho, null, true, 'Asia/Tokyo');
+
+
+/***** Event Handlers *****/
 
 // プロ->趣味
 slack.on('message', function (message) {
