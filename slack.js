@@ -2,7 +2,7 @@
 
 const Slack = require('slack-client');
 
-const slack = new Slack(secret.token, true, true);
+const slack = new Slack(process.env.slack_token, true, true);
 
 const channels = {};
 
