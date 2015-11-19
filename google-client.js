@@ -11,20 +11,21 @@ class GoogleClient extends EventEmitter2 {
 		super(config);
 
 		this.slack = config.slack;
+		this.logger = config.logger;
 		this.redis = redis.createClient(process.env.REDIS_URL);
 
 		this.authorized = false;
 
 		// Load client secrets from environment variable
 		if (!process.env.GOOGLE_CLIENT_SECRETS) {
-			console.error('Error loading client secrets');
+			this.logger.error('client_secrets.jsonを読み込めなかったの……ぐすん');
 			return;
 		}
 
 		try {
 			this.credentials = JSON.parse(process.env.GOOGLE_CLIENT_SECRETS);
 		} catch (error) {
-			console.error(`Error parsing client secrets: ${error}`);
+			console.error(`client_secrets.jsonがパースできなかったの……: ${error}`);
 		}
 
 		// Authorize a client with the loaded credentials
@@ -83,7 +84,7 @@ class GoogleClient extends EventEmitter2 {
 
 				this.client.getToken(code, (error, token) => {
 					if (error) {
-						console.error(`Error while trying to retrieve access token: ${error}`);
+						this.logger.error(`アクセストークンを取得できなかったの……: ${error}`);
 						dm.send(`Error while trying to retrieve access token: ${error}`);
 						return;
 					}
@@ -108,7 +109,7 @@ class GoogleClient extends EventEmitter2 {
 
 	storeToken() {
 		this.redis.set('google_token', JSON.stringify(this.client.credentials));
-		console.log('Token stored');
+		this.logger.log('Google APIのトークンを保存したよ!');
 	}
 
 	refresh(callback) {
