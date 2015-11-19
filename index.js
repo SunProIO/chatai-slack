@@ -1,12 +1,11 @@
 var CronJob = require('cron').CronJob;
 var fs = require('fs');
 
-var secret = require('./secret.json');
-
 // Initialize Timezone
 process.env.TZ = 'Asia/Tokyo';
 
 const slack = require('./slack');
+const channels = Object.create(null);
 
 const GoogleClient = require('./google-client');
 const googleClient = new GoogleClient({slack: slack})
@@ -14,7 +13,7 @@ const googleClient = new GoogleClient({slack: slack})
 const google = require('googleapis');
 const drive = google.drive('v2');
 
-let config = null;
+let secret = null;
 
 /***** Retrieve and setup config *****/
 
@@ -28,7 +27,16 @@ googleClient.on('authorize', () => {
 			return console.error(error);
 		}
 
-		config = response;
+		secret = response;
+	});
+});
+
+
+/***** Setup slack channels *****/
+
+slack.on('open', function () {
+	Object.keys(slack.channels).forEach(function (id) {
+		channels[slack.channels[id].name] = slack.channels[id];
 	});
 });
 
