@@ -8,7 +8,7 @@ process.env.TZ = 'Asia/Tokyo';
 
 const slack = require('./slack');
 
-const GoogleClient = require('./google');
+const GoogleClient = require('./google-client');
 const googleClient = new GoogleClient({slack: slack})
 
 const google = require('googleapis');
