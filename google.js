@@ -9,6 +9,8 @@ class GoogleClient {
 		this.slack = config.slack;
 		this.redis = redis.createClient(process.env.REDIS_URL);
 
+		this.authorized = false;
+
 		// Load client secrets from environment variable
 		if (!process.env.GOOGLE_CLIENT_SECRETS) {
 			console.error('Error loading client secrets');
@@ -23,10 +25,10 @@ class GoogleClient {
 
 		// Authorize a client with the loaded credentials
 		if (this.slack.connected) {
-			this.authorize(this.listFiles);
+			this.authorize();
 		} else {
 			this.slack.on('open', () => {
-				this.authorize(this.listFiles);
+				this.authorize();
 			});
 		}
 	}
@@ -43,7 +45,10 @@ class GoogleClient {
 				this.getNewToken(callback);
 			} else {
 				this.client.credentials = JSON.parse(token);
-				callback.call(this);
+				this.authorized = true;
+				if (typeof callback === 'function') {
+					callback.call(this);
+				}
 			}
 		});
 	}
@@ -81,8 +86,12 @@ class GoogleClient {
 					dm.send('Thanks!');
 
 					this.client.credentials = token;
+					this.authorized = true;
 					this.storeToken();
-					callback.call(this);
+
+					if (typeof callback === 'function') {
+						callback.call(this);
+					}
 				});
 
 				this.slack.removeListener('message', processMessage);
@@ -93,28 +102,6 @@ class GoogleClient {
 	storeToken() {
 		this.redis.set('google_token', JSON.stringify(this.client.credentials));
 		console.log('Token stored');
-	}
-
-	listFiles() {
-		const drive = google.drive('v2');
-
-		drive.files.list({
-			auth: this.client,
-			maxResults: 10,
-		}, (err, response) => {
-			if (err) {
-				console.log('The API returned an error: ' + err);
-				return;
-			}
-
-			Object.keys(this.slack.dms).forEach((id) => {
-				const dm = this.slack.getDMByID(id);
-
-				if (dm.name === 'hakatashi') {
-					dm.send(`Files: ${response.items.map((item) => item.title).join()}`);
-				}
-			});
-		});
 	}
 }
 
