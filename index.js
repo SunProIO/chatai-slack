@@ -9,7 +9,17 @@ process.env.TZ = 'Asia/Tokyo';
 const slack = require('./slack');
 
 const GoogleClient = require('./google.js');
-const google = new GoogleClient({slack: slack})
+const googleClient = new GoogleClient({slack: slack})
+
+const google = require('googleapis');
+
+/***** Retrieve and setup config *****/
+
+googleClient.on('authorize', () => {
+	console.log('hoge');
+	// hogehoge
+});
+
 
 /***** Cron Jobs *****/
 

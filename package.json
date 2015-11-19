@@ -21,6 +21,7 @@
   "homepage": "https://github.com/SunProIO/chatai-slack",
   "dependencies": {
     "cron": "^1.0.9",
+    "eventemitter2": "^0.4.14",
     "googleapis": "^2.0.2",
     "harmony-reflect": "^1.1.2",
     "redis": "^2.3.0",

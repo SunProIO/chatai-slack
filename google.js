@@ -4,8 +4,12 @@ const google = require('googleapis');
 const redis = require('redis');
 const SCOPES = ['https://www.googleapis.com/auth/drive.readonly'];
 
-class GoogleClient {
+const EventEmitter2 = require('eventemitter2').EventEmitter2;
+
+class GoogleClient extends EventEmitter2 {
 	constructor(config) {
+		super(config);
+
 		this.slack = config.slack;
 		this.redis = redis.createClient(process.env.REDIS_URL);
 
@@ -46,6 +50,7 @@ class GoogleClient {
 			} else {
 				this.client.credentials = JSON.parse(token);
 				this.authorized = true;
+				this.emit('authorize');
 				if (typeof callback === 'function') {
 					callback.call(this);
 				}
@@ -88,6 +93,8 @@ class GoogleClient {
 					this.client.credentials = token;
 					this.authorized = true;
 					this.storeToken();
+
+					this.emit('authorize');
 
 					if (typeof callback === 'function') {
 						callback.call(this);
