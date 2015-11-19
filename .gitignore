@@ -76,3 +76,5 @@ $RECYCLE.BIN/
 
 # SECRET
 secret.json
+chatai_secret.json
+env.cmd
