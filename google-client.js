@@ -101,7 +101,7 @@ class GoogleClient extends EventEmitter2 {
 					}
 				});
 
-				this.slack.removeListener('message', processMessage);
+				this.slack.removeAllListeners('message');
 			}
 		}
 	}
