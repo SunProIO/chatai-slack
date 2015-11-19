@@ -1,53 +1,132 @@
-var Slack = require('slack-client');
-var CronJob = require('cron').CronJob;
-var google = require('googleapis');
-var fs = require('fs');
+'use strict';
 
-var secret = require('./secret.json');
+var CronJob = require('cron').CronJob;
+var fs = require('fs');
 
 // Initialize Timezone
 process.env.TZ = 'Asia/Tokyo';
 
-/***** Slack things *****/
+const slack = require('./slack');
+const channels = Object.create(null);
 
-var slack = new Slack(secret.token, true, true);
+/***** Setup Logger *****/
 
-var channels = {};
+class Logger {
+	constructor() {
+		this.pendingMessages = [];
+	}
+	setChannel(channel) {
+		this.channel = channel;
+		for (let message of this.pendingMessages) {
+			this.channel.send(message);
+		}
+		this.pendingMessages = [];
+	}
+	getPrefix() {
+		let prefix;
+		if (process.env.CHATAI_ENV === 'development') {
+			prefix = '【デバッグログ】';
+		} else if (process.env.CHATAI_TYPE === 'day') {
+			prefix = '【昼ちゃたい】';
+		} else if (process.env.CHATAI_TYPE === 'night') {
+			prefix = '【夜ちゃたい】';
+		} else {
+			prefix = '';
+		}
+
+		return prefix;
+	}
+	log(text) {
+		const message = `${this.getPrefix()}${new Date().toISOString()} LOG: ${text}`;
+
+		console.log(message);
+
+		if (this.channel) {
+			this.channel.send(message);
+		} else {
+			this.pendingMessages.push(message);
+		}
+	}
+	error(text) {
+		const message = `${this.getPrefix()}${new Date().toISOString()} ERROR: ${text}`;
+
+		console.error(message);
+
+		if (this.channel) {
+			this.channel.send(message);
+		} else {
+			this.pendingMessages.push(message);
+		}
+	}
+}
+
+const logger = new Logger();
+
+const GoogleClient = require('./google-client');
+const googleClient = new GoogleClient({slack: slack, logger: logger})
+
+const google = require('googleapis');
+const drive = google.drive('v2');
+
+let secret = null;
+
+
+/***** Retrieve and setup config *****/
+
+googleClient.on('authorize', () => {
+	logger.log('Google APIで認証成功! chatai_secret.jsonを取得します!')
+
+	drive.files.get({
+		auth: googleClient.client,
+		fileId: process.env.SECRET_JSON_ID,
+		alt: 'media',
+	}, (error, response) => {
+		if (error) {
+			return logger.error(error);
+		}
+
+		secret = response;
+		logger.log('chatai_secret.json取得成功! 正常起動しました!');
+	});
+});
+
+
+/***** Setup slack channels *****/
 
 slack.on('open', function () {
 	Object.keys(slack.channels).forEach(function (id) {
 		channels[slack.channels[id].name] = slack.channels[id];
+
+		if (slack.channels[id].name === 'chatai-log') {
+			logger.setChannel(slack.channels[id]);
+
+			if (process.env.CHATAI_TYPE === 'day') {
+				logger.log('ふあー……おはよう、昼ちゃたいだよ! 今日も一日よろしくね!');
+			} else if (process.env.CHATAI_TYPE === 'night') {
+				logger.log('こんばんは、夜ちゃたいだよ。進捗どうですか?');
+			}
+		}
 	});
 });
 
-slack.on('error', function (error) {
-	console.error(error);
-});
 
-slack.login();
+/***** Setup Event Handler for SIGINT and SIGTERM *****/
 
+process.on('SIGINT', exit);
+process.on('SIGTERM', exit);
 
-/***** Google API setups *****/
+function exit() {
+	logger.log('それじゃあ今日はもうお休みするね。明日もよろしく!');
 
-var OAuth2 = google.auth.OAuth2;
-var oauth2Client = new OAuth2(
-	secret.googleapis.installed.client_id,
-	secret.googleapis.installed.client_secret,
-	secret.googleapis.installed.redirect_uris[0]
-);
-
-oauth2Client.setCredentials({
-	access_token: secret.googleapis.local.access_token,
-	refresh_token: secret.googleapis.local.refresh_token,
-});
-
-var analytics = google.analytics({version: 'v3', auth: oauth2Client});
+	setTimeout(() => {
+		process.exit(22);
+	}, 1000);
+}
 
 
-/***** Tasks *****/
+/***** Cron Jobs *****/
 
-// よるほー
-var yoruho = new CronJob('00 00 00 * * *', function () {
+function yoruho() {
 	channels.random.send('よるほー');
 
 	// Happy Birthday!
@@ -60,7 +139,13 @@ var yoruho = new CronJob('00 00 00 * * *', function () {
 			channels.random.send('今日は @' + birthday.id + ' さんの誕生日だよ! おめでとう! :birthday:');
 		}
 	});
-}, null, true, 'Asia/Tokyo');
+}
+
+// よるほー
+const yoruhoJob = new CronJob('00 00 00 * * *', yoruho, null, true, 'Asia/Tokyo');
+
+
+/***** Event Handlers *****/
 
 // プロ->趣味
 slack.on('message', function (message) {

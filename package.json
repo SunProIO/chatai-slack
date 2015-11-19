@@ -3,8 +3,12 @@
   "version": "0.0.0",
   "description": "chatai never die.",
   "private": true,
+  "engines": {
+    "node": "~4.2.1"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
   },
   "repository": {
     "type": "git",
@@ -18,8 +22,10 @@
   "homepage": "https://github.com/SunProIO/chatai-slack",
   "dependencies": {
     "cron": "^1.0.9",
+    "eventemitter2": "^0.4.14",
     "googleapis": "^2.0.2",
     "harmony-reflect": "^1.1.2",
+    "redis": "^2.3.0",
     "slack-client": "^1.4.0"
   }
 }
