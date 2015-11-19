@@ -2,6 +2,7 @@
 
 var CronJob = require('cron').CronJob;
 var fs = require('fs');
+var spawn = require('child_process').spawn;
 
 // Initialize Timezone
 process.env.TZ = 'Asia/Tokyo';
@@ -147,12 +148,13 @@ const yoruhoJob = new CronJob('00 00 00 * * *', yoruho, null, true, 'Asia/Tokyo'
 
 /***** Event Handlers *****/
 
-// プロ->趣味
 slack.on('message', function (message) {
 	var channel = slack.getChannelGroupOrDMByID(message.channel);
 	var user = slack.getUserByID(message.user);
 
 	if (channel.name === 'random' && message.type === 'message' && message.text) {
+		// プロ->趣味
+
 		var puro = /([ぷプ][ろロ]|pro)/ig;
 
 		// ignore frequently appearing words
@@ -180,6 +182,56 @@ slack.on('message', function (message) {
 			}) + ' @' + user.name;
 
 			channel.send(response);
+		}
+
+		// ちゃたいコマンド
+
+		var execChatai = false;
+
+		// Execute on reply
+		if (message.text.length < 200) {
+			if (message.text.match('<@' + slack.self.id + '>')) {
+				execChatai = 'force';
+			} else if (Math.random() < .1) {
+				execChatai = 'possible';
+			}
+		}
+
+		if (execChatai) {
+			// Remove meta sequences and emojies
+			var input = message.text.replace(/(<.+?>|:.+?:)/g, '');
+
+			var command = spawn('shly', [
+				'run',
+				input,
+				'--debug', 't'
+			], {
+				cwd: '/home/hakatashi/chatai-command'
+			});
+
+			var reply = '';
+			command.stdout.on('data', function (chunk) {
+				reply += chunk;
+			});
+			command.on('close', function (exitCode) {
+				if (exitCode === 0) {
+					// Strip heading and trailing whitespaces
+					reply = reply.replace(/(^\s+|\s+$)/g, '');
+
+					// If reply is empty or NIL
+					if (reply === '' || reply === 'NIL') {
+						// Reply emoji if force reply
+						if (execChatai === 'force') {
+							var emojies = ['sleeping', 'confused', 'sleepy', 'persevere', 'shit', 'open_hands'];
+							var emoji = emojies[Math.floor(Math.random() * emojies.length)];
+							channel.send('@' + user.name + ' :' + emoji + ':');
+						}
+					} else {
+						// If reply is not empty
+						channel.send('@' + user.name + ' ' + reply.slice(0, 200));
+					}
+				}
+			});
 		}
 	}
 });
