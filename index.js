@@ -22,7 +22,7 @@ class Logger {
 		}
 		this.pendingMessages = [];
 	}
-	log(text) {
+	getPrefix() {
 		let prefix;
 		if (process.env.CHATAI_ENV === 'development') {
 			prefix = '【デバッグログ】';
@@ -34,7 +34,10 @@ class Logger {
 			prefix = '';
 		}
 
-		const message = `${prefix}${new Date().toISOString()} LOG: ${text}`;
+		return prefix;
+	}
+	log(text) {
+		const message = `${this.getPrefix()}${new Date().toISOString()} LOG: ${text}`;
 
 		console.log(message);
 
@@ -45,18 +48,7 @@ class Logger {
 		}
 	}
 	error(text) {
-		let prefix;
-		if (process.env.CHATAI_ENV === 'development') {
-			prefix = '【デバッグログ】';
-		} else if (process.env.CHATAI_TYPE === 'day') {
-			prefix = '【昼ちゃたい】';
-		} else if (process.env.CHATAI_TYPE === 'night') {
-			prefix = '【夜ちゃたい】';
-		} else {
-			prefix = '';
-		}
-
-		const message = `${prefix}${new Date().toISOString()} ERROR: ${text}`;
+		const message = `${this.getPrefix()}${new Date().toISOString()} ERROR: ${text}`;
 
 		console.error(message);
 
@@ -94,8 +86,7 @@ googleClient.on('authorize', () => {
 		}
 
 		secret = response;
-		logger.log('chatai_secret.json取得成功!')
-		logger.log('正常起動しました!')
+		logger.log('chatai_secret.json取得成功! 正常起動しました!');
 	});
 });
 
@@ -112,7 +103,7 @@ slack.on('open', function () {
 			if (process.env.CHATAI_TYPE === 'day') {
 				logger.log('ふあー……おはよう、昼ちゃたいだよ! 今日も一日よろしくね!');
 			} else if (process.env.CHATAI_TYPE === 'night') {
-				logger.log('こんばんは、夜ちゃたいだよ。進捗どうですか?')
+				logger.log('こんばんは、夜ちゃたいだよ。進捗どうですか?');
 			}
 		}
 	});
