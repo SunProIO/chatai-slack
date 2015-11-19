@@ -1,5 +1,4 @@
 var CronJob = require('cron').CronJob;
-var google = require('googleapis');
 var fs = require('fs');
 
 var secret = require('./secret.json');
@@ -9,23 +8,8 @@ process.env.TZ = 'Asia/Tokyo';
 
 const slack = require('./slack');
 
-
-/***** Google API setups *****/
-
-var OAuth2 = google.auth.OAuth2;
-var oauth2Client = new OAuth2(
-	secret.googleapis.installed.client_id,
-	secret.googleapis.installed.client_secret,
-	secret.googleapis.installed.redirect_uris[0]
-);
-
-oauth2Client.setCredentials({
-	access_token: secret.googleapis.local.access_token,
-	refresh_token: secret.googleapis.local.refresh_token,
-});
-
-var analytics = google.analytics({version: 'v3', auth: oauth2Client});
-
+const GoogleClient = require('./google.js');
+const google = new GoogleClient({slack: slack})
 
 /***** Cron Jobs *****/
 
