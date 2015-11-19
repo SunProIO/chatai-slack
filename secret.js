@@ -1,3 +1,5 @@
+'use strict';
+
 // unexplained hogehoge :)
 
 var fs = require('fs');

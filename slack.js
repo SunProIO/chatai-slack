@@ -1,3 +1,5 @@
+'use strict';
+
 /***** Slack things *****/
 
 const Slack = require('slack-client');

@@ -1,3 +1,5 @@
+'use strict';
+
 var CronJob = require('cron').CronJob;
 var fs = require('fs');
 
