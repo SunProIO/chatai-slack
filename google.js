@@ -107,9 +107,6 @@ class GoogleClient {
 				return;
 			}
 
-			console.log(`File listing successful.`);
-			console.log(`cred: ${require('util').inspect(this.client.credentials)})`);
-
 			Object.keys(this.slack.dms).forEach((id) => {
 				const dm = this.slack.getDMByID(id);
 
