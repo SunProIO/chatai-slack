@@ -9,13 +9,49 @@ process.env.TZ = 'Asia/Tokyo';
 const slack = require('./slack');
 const channels = Object.create(null);
 
+/***** Setup Logger *****/
+
+class Logger {
+	constructor() {
+		this.pendingMessages = [];
+	}
+	setChannel(channel) {
+		this.channel = channel;
+		for (let message of this.pendingMessages) {
+			this.channel.send(message);
+		}
+		this.pendingMessages = [];
+	}
+	log(text) {
+		const prefix = process.env.CHATAI_ENV === 'development' ? '【デバッグログ】' : '';
+		const message = `${prefix}${new Date().toISOString()} LOG: ${text}`;
+		if (this.channel) {
+			this.channel.send(message);
+		} else {
+			this.pendingMessages.push(message);
+		}
+	}
+	error(text) {
+		const prefix = process.env.CHATAI_ENV === 'development' ? '【デバッグログ】' : '';
+		const message = `${prefix}${new Date().toISOString()} ERROR: ${text}`;
+		if (this.channel) {
+			this.channel.send(message);
+		} else {
+			this.pendingMessages.push(message);
+		}
+	}
+}
+
+const logger = new Logger();
+
 const GoogleClient = require('./google-client');
-const googleClient = new GoogleClient({slack: slack})
+const googleClient = new GoogleClient({slack: slack, logger: logger})
 
 const google = require('googleapis');
 const drive = google.drive('v2');
 
 let secret = null;
+
 
 /***** Retrieve and setup config *****/
 
@@ -39,6 +75,10 @@ googleClient.on('authorize', () => {
 slack.on('open', function () {
 	Object.keys(slack.channels).forEach(function (id) {
 		channels[slack.channels[id].name] = slack.channels[id];
+
+		if (slack.channels[id].name === 'chatai-log') {
+			logger.setChannel(slack.channels[id]);
+		}
 	});
 });
 
