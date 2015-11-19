@@ -110,6 +110,17 @@ class GoogleClient extends EventEmitter2 {
 		this.redis.set('google_token', JSON.stringify(this.client.credentials));
 		console.log('Token stored');
 	}
+
+	refresh(callback) {
+		this.client.refreshAccessToken((error, tokens) => {
+			this.client.credentials = tokens;
+			this.storeToken();
+
+			if (typeof callback === 'function') {
+				callback();
+			}
+		});
+	}
 }
 
 module.exports = GoogleClient;

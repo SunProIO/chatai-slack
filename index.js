@@ -8,16 +8,28 @@ process.env.TZ = 'Asia/Tokyo';
 
 const slack = require('./slack');
 
-const GoogleClient = require('./google.js');
+const GoogleClient = require('./google');
 const googleClient = new GoogleClient({slack: slack})
 
 const google = require('googleapis');
+const drive = google.drive('v2');
+
+let config = null;
 
 /***** Retrieve and setup config *****/
 
 googleClient.on('authorize', () => {
-	console.log('hoge');
-	// hogehoge
+	drive.files.get({
+		auth: googleClient.client,
+		fileId: process.env.SECRET_JSON_ID,
+		alt: 'media',
+	}, (error, response) => {
+		if (error) {
+			return console.error(error);
+		}
+
+		config = response;
+	});
 });
 
 
