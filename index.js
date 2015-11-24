@@ -31,11 +31,11 @@ class Logger {
 	getPrefix() {
 		let prefix;
 		if (process.env.CHATAI_ENV === 'development') {
-			prefix = '【デバッグログ】';
+			prefix = 'デバッグログ: ';
 		} else if (process.env.CHATAI_TYPE === 'day') {
-			prefix = '【昼ちゃたい】';
+			prefix = '昼ちゃたい: ';
 		} else if (process.env.CHATAI_TYPE === 'night') {
-			prefix = '【夜ちゃたい】';
+			prefix = '夜ちゃたい: ';
 		} else {
 			prefix = '';
 		}
@@ -43,13 +43,13 @@ class Logger {
 		return prefix;
 	}
 	log(text) {
-		const message = `${this.getPrefix()}${new Date().toISOString()} LOG: ${text}`;
+		const message = `[${this.getPrefix()}${new Date().toISOString()}] ${text}`;
 
 		console.log(message);
 		this.post(message);
 	}
 	error(text) {
-		const message = `@channel ${this.getPrefix()}${new Date().toISOString()} ERROR: ${text}`;
+		const message = `[${this.getPrefix()}${new Date().toISOString()}] @channel ERROR: ${text}`;
 
 		console.error(message);
 		this.post(message);
