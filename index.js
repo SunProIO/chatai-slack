@@ -10,6 +10,11 @@ process.env.TZ = 'Asia/Tokyo';
 const slack = require('./slack');
 const channels = Object.create(null);
 
+const SECOND = 1000;
+const MINUTE = 60 * SECOND;
+const HOUR = 60 * MINUTE;
+const DAY = 24 * HOUR;
+
 /***** Setup Logger *****/
 
 class Logger {
