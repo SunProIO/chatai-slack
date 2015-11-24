@@ -47,10 +47,12 @@ class Logger {
 
 		console.log(message);
 
-		if (this.channel) {
-			this.channel.send(message);
-		} else {
-			this.pendingMessages.push(message);
+		if (process.env.CHATAI_ENV !== 'development') {
+			if (this.channel) {
+				this.channel.send(message);
+			} else {
+				this.pendingMessages.push(message);
+			}
 		}
 	}
 	error(text) {
@@ -58,10 +60,12 @@ class Logger {
 
 		console.error(message);
 
-		if (this.channel) {
-			this.channel.send(message);
-		} else {
-			this.pendingMessages.push(message);
+		if (process.env.CHATAI_ENV !== 'development') {
+			if (this.channel) {
+				this.channel.send(message);
+			} else {
+				this.pendingMessages.push(message);
+			}
 		}
 	}
 }
