@@ -146,7 +146,11 @@ function yoruho() {
 	var today = month + '/' + day;
 	secret.birthdays.forEach(function (birthday) {
 		if (today === birthday.day) {
-			channels.random.send('今日は @' + birthday.id + ' さんの誕生日だよ! おめでとう! :birthday:');
+			channels.random.postMessage({
+				text: `今日は @${birthday.id} さんの誕生日だよ! おめでとう! :birthday:`,
+				as_user: 'true',
+				link_names: '1',
+			});
 		}
 	});
 
