@@ -1,7 +1,8 @@
 'use strict';
 
-var CronJob = require('cron').CronJob;
-var fs = require('fs');
+const CronJob = require('cron').CronJob;
+const fs = require('fs');
+const request = require('request');
 
 // Initialize Timezone
 process.env.TZ = 'Asia/Tokyo';

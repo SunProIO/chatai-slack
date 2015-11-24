@@ -26,6 +26,7 @@
     "googleapis": "^2.0.2",
     "harmony-reflect": "^1.1.2",
     "redis": "^2.3.0",
+    "request": "^2.67.0",
     "slack-client": "^1.4.0"
   }
 }
