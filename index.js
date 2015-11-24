@@ -24,11 +24,7 @@ class Logger {
 	setChannel(channel) {
 		this.channel = channel;
 		for (let message of this.pendingMessages) {
-			this.channel.postMessage({
-				text: message,
-				as_user: 'true',
-				parse: 'full',
-			});
+			this.post(message);
 		}
 		this.pendingMessages = [];
 	}
@@ -50,24 +46,15 @@ class Logger {
 		const message = `${this.getPrefix()}${new Date().toISOString()} LOG: ${text}`;
 
 		console.log(message);
-
-		if (process.env.CHATAI_ENV !== 'development') {
-			if (this.channel) {
-				this.channel.postMessage({
-					text: message,
-					as_user: 'true',
-					parse: 'full',
-				});
-			} else {
-				this.pendingMessages.push(message);
-			}
-		}
+		this.post(message);
 	}
 	error(text) {
 		const message = `@channel ${this.getPrefix()}${new Date().toISOString()} ERROR: ${text}`;
 
 		console.error(message);
-
+		this.post(message);
+	}
+	post(message) {
 		if (process.env.CHATAI_ENV !== 'development') {
 			if (this.channel) {
 				this.channel.postMessage({
