@@ -149,6 +149,70 @@ function yoruho() {
 			channels.random.send('今日は @' + birthday.id + ' さんの誕生日だよ! おめでとう! :birthday:');
 		}
 	});
+
+	trelloNotify();
+}
+
+function trelloNotify() {
+	let remainingJobs = 2;
+	const listCardsURL = `https://api.trello.com/1/boards/${secret.trello.boardId}/cards`;
+
+	request({
+		url: listCardsURL,
+		method: 'GET',
+		qs: {
+			key: secret.trello.key,
+			token: secret.trello.token,
+			fields: 'shortUrl,name,due',
+			filter: 'open',
+			members: 'true',
+			member_fields: 'fullName,username',
+		},
+		json: true,
+	}, (error, response, data) => {
+		if (error) {
+			return logger.error(error);
+		}
+
+		const now = Date.now();
+
+		for (let card of data) {
+			if (card.due === null || card.members.length === 0) {
+				continue;
+			}
+
+			const title = `タスク<${card.shortUrl}|「${card.name}」>`;
+
+			const notify = (text) => {
+				const mentions = card.members.map((member) => `@${member.fullName}`).join(' ');
+
+				channels.random.postMessage({
+					text: `${mentions} ${text}`,
+					as_user: 'true',
+					link_names: '1',
+					unfurl_links: 'true',
+					unfurl_media: 'true',
+				});
+			};
+
+			const due = Date.parse(card.due);
+			const dayLimit = Math.ceil((due - now) / DAY);
+
+			if (dayLimit < 0) {
+				notify(`${title}の期限を${Math.abs(dayLimit)}日過ぎてるよ! しっかりして!`);
+			} else if (dayLimit === 0) {
+				notify(`${title}の期限は今日だよ! 進捗は大丈夫?`);
+			} else if (dayLimit === 1) {
+				notify(`明日は${title}の期限だよ!`);
+			} else if (dayLimit === 2) {
+				notify(`${title}の期限まであと2日だよ!`);
+			} else if (dayLimit === 3) {
+				notify(`${title}の期限まであと3日だよ! 進捗どうですか?`);
+			} else if (dayLimit === 7) {
+				notify(`${title}の期限まであと一週間だよ。そろそろ取り掛かろう!`);
+			}
+		}
+	});
 }
 
 // よるほー
