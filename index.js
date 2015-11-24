@@ -24,18 +24,18 @@ class Logger {
 	setChannel(channel) {
 		this.channel = channel;
 		for (let message of this.pendingMessages) {
-			this.channel.send(message);
+			this.post(message);
 		}
 		this.pendingMessages = [];
 	}
 	getPrefix() {
 		let prefix;
 		if (process.env.CHATAI_ENV === 'development') {
-			prefix = '【デバッグログ】';
+			prefix = 'デバッグログ: ';
 		} else if (process.env.CHATAI_TYPE === 'day') {
-			prefix = '【昼ちゃたい】';
+			prefix = '昼ちゃたい: ';
 		} else if (process.env.CHATAI_TYPE === 'night') {
-			prefix = '【夜ちゃたい】';
+			prefix = '夜ちゃたい: ';
 		} else {
 			prefix = '';
 		}
@@ -43,26 +43,25 @@ class Logger {
 		return prefix;
 	}
 	log(text) {
-		const message = `${this.getPrefix()}${new Date().toISOString()} LOG: ${text}`;
+		const message = `[${this.getPrefix()}${new Date().toISOString()}] ${text}`;
 
 		console.log(message);
-
-		if (process.env.CHATAI_ENV !== 'development') {
-			if (this.channel) {
-				this.channel.send(message);
-			} else {
-				this.pendingMessages.push(message);
-			}
-		}
+		this.post(message);
 	}
 	error(text) {
-		const message = `${this.getPrefix()}${new Date().toISOString()} ERROR: ${text}`;
+		const message = `[${this.getPrefix()}${new Date().toISOString()}] @channel ERROR: ${text}`;
 
 		console.error(message);
-
+		this.post(message);
+	}
+	post(message) {
 		if (process.env.CHATAI_ENV !== 'development') {
 			if (this.channel) {
-				this.channel.send(message);
+				this.channel.postMessage({
+					text: message,
+					as_user: 'true',
+					parse: 'full',
+				});
 			} else {
 				this.pendingMessages.push(message);
 			}
@@ -146,7 +145,11 @@ function yoruho() {
 	var today = month + '/' + day;
 	secret.birthdays.forEach(function (birthday) {
 		if (today === birthday.day) {
-			channels.random.send('今日は @' + birthday.id + ' さんの誕生日だよ! おめでとう! :birthday:');
+			channels.random.postMessage({
+				text: `今日は @${birthday.id} さんの誕生日だよ! おめでとう! :birthday:`,
+				as_user: 'true',
+				link_names: '1',
+			});
 		}
 	});
 
