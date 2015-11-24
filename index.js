@@ -177,17 +177,24 @@ function trelloNotify() {
 		const now = Date.now();
 
 		for (let card of data) {
-			if (card.due === null || card.members.length === 0) {
+			if (card.due === null) {
 				continue;
 			}
 
 			const title = `タスク<${card.shortUrl}|「${card.name}」>`;
 
 			const notify = (text) => {
-				const mentions = card.members.map((member) => `@${member.fullName}`).join(' ');
+				let message;
+
+				if (card.members.length === 0) {
+					message = text;
+				} else {
+					const mentions = card.members.map((member) => `@${member.fullName}`).join(' ');
+					message = `${mentions} ${text}`;
+				}
 
 				channels.random.postMessage({
-					text: `${mentions} ${text}`,
+					text: message,
 					as_user: 'true',
 					link_names: '1',
 					unfurl_links: 'true',
