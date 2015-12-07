@@ -206,7 +206,7 @@ function trelloNotify() {
 			};
 
 			const due = Date.parse(card.due);
-			const dayLimit = Math.ceil((due - now) / DAY);
+			const dayLimit = Math.ceil((due - now) / DAY) - 1;
 
 			if (dayLimit < 0) {
 				notify(`${title}の期限を${Math.abs(dayLimit)}日過ぎてるよ! しっかりして!`);
