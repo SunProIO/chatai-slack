@@ -192,7 +192,7 @@ function trelloNotify() {
 				if (card.members.length === 0) {
 					message = text;
 				} else {
-					const mentions = card.members.map((member) => `@${member.fullName}`).join(' ');
+					const mentions = card.members.map((member) => `@${member.fullName.toLowerCase()}`).join(' ');
 					message = `${mentions} ${text}`;
 				}
 
