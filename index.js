@@ -192,7 +192,7 @@ function trelloNotify() {
 				if (card.members.length === 0) {
 					message = text;
 				} else {
-					const mentions = card.members.map((member) => `@${member.fullName}`).join(' ');
+					const mentions = card.members.map((member) => `@${member.fullName.toLowerCase()}`).join(' ');
 					message = `${mentions} ${text}`;
 				}
 
@@ -206,7 +206,7 @@ function trelloNotify() {
 			};
 
 			const due = Date.parse(card.due);
-			const dayLimit = Math.ceil((due - now) / DAY);
+			const dayLimit = Math.ceil((due - now) / DAY) - 1;
 
 			if (dayLimit < 0) {
 				notify(`${title}の期限を${Math.abs(dayLimit)}日過ぎてるよ! しっかりして!`);
