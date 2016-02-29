@@ -208,7 +208,9 @@ function trelloNotify() {
 			const due = Date.parse(card.due);
 			const dayLimit = Math.ceil((due - now) / DAY) - 1;
 
-			if (dayLimit < 0) {
+			if (dayLimit < -14) {
+				notify(`https://twitter.com/intent/tweet?text=.%20%40${member.fullName.toLowerCase()}%20%E3%81%AF%E3%82%BF%E3%82%B9%E3%82%AF%E3%80%8C${title}%E3%80%8D%E3%82%92${Math.abs(dayLimit)}%E6%97%A5%E7%B5%8C%E3%81%A3%E3%81%A6%E3%82%82%E7%B5%82%E3%82%8F%E3%82%89%E3%81%9B%E3%81%A6%E3%81%84%E3%81%BE%E3%81%9B%E3%82%93!!!%20%E6%97%A9%E3%81%8F%E3%81%97%E3%82%8D!!!`);
+			} else if (dayLimit < 0) {
 				notify(`${title}の期限を${Math.abs(dayLimit)}日過ぎてるよ! しっかりして!`);
 			} else if (dayLimit === 0) {
 				notify(`${title}の期限は今日だよ! 進捗は大丈夫?`);
